@@ -1,4 +1,4 @@
-# openwebui-searxng
+# OpenWebUI-SearXNG
 
 > **Windows only.** This setup runs Open WebUI and SearXNG inside WSL2 (Windows Subsystem for Linux). It is not intended for native Linux or macOS.
 
