@@ -23,6 +23,12 @@ docker run hello-world > /dev/null 2>&1 && echo "      Docker is working." || {
 
 # --- Launch Open WebUI ---
 echo "[2/5] Starting Open WebUI container..."
+
+if docker ps -a --format '{{.Names}}' | grep -q '^open-webui$'; then
+  echo "      Found existing open-webui container — removing it..."
+  docker rm -f open-webui > /dev/null
+fi
+
 docker run -d \
   --network=host \
   -v ~/open-webui-data:/app/backend/data \
@@ -71,7 +77,7 @@ search:
   safe_search: 0
   autocomplete: ""
   default_lang: ""
-  max_results: 15
+  max_results: 20
   formats:
     - html
     - json
@@ -107,6 +113,27 @@ echo "      Config written."
 
 # --- Launch SearXNG ---
 echo "[4/5] Starting SearXNG container..."
+
+if docker ps -a --format '{{.Names}}' | grep -q '^searxng$'; then
+  echo "      Found existing searxng container — removing it..."
+  docker rm -f searxng > /dev/null
+fi
+
+# Pull SearXNG image with up to 3 retries to handle TLS hiccups
+MAX_RETRIES=3
+attempt=1
+until docker pull searxng/searxng; do
+  if [ $attempt -ge $MAX_RETRIES ]; then
+    echo ""
+    echo "ERROR: Failed to pull SearXNG image after $MAX_RETRIES attempts."
+    echo "Check your network connection and try again."
+    exit 1
+  fi
+  echo "      Pull failed (attempt $attempt/$MAX_RETRIES) — retrying..."
+  attempt=$((attempt + 1))
+  sleep 3
+done
+
 docker run -d \
   --name searxng \
   --network=host \
