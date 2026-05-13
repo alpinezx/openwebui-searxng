@@ -32,15 +32,25 @@ docker run -d \
   ghcr.io/open-webui/open-webui:main
 
 echo "      Container started. Waiting for Open WebUI to be ready..."
-sleep 8
+echo "      (First launch downloads models — this may take a minute or two...)"
 
-# --- Verify Open WebUI is responding ---
-echo "      Verifying Open WebUI..."
-curl -sf "http://localhost:8080" > /dev/null && echo "      Open WebUI is working." || {
-  echo ""
-  echo "ERROR: Open WebUI didn't respond. Check logs with: docker logs open-webui --tail 20"
-  exit 1
-}
+spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+elapsed=0
+until curl -sf "http://localhost:8080" > /dev/null 2>&1; do
+  i=$((elapsed % 10))
+  char="${spinner:$i:1}"
+  printf "\r      %s Waiting for Open WebUI... %ds" "$char" "$elapsed"
+  sleep 1
+  elapsed=$((elapsed + 1))
+  if [ $elapsed -ge 180 ]; then
+    echo ""
+    echo ""
+    echo "ERROR: Open WebUI didn't respond after 3 minutes."
+    echo "Check logs with: docker logs open-webui --tail 20"
+    exit 1
+  fi
+done
+printf "\r      ✓ Open WebUI is working. (%ds)          \n" "$elapsed"
 
 # --- Create SearXNG config ---
 echo "[3/5] Creating SearXNG config..."
