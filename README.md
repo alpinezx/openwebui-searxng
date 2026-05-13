@@ -6,6 +6,10 @@ Automated setup scripts for a private local search engine (SearXNG) connected to
 
 SearXNG is a self-hosted, privacy-respecting meta search engine. It queries Google, Bing, DuckDuckGo and others simultaneously, strips out all ads and tracking, and returns clean results — served entirely from your own machine. Open WebUI provides a polished chat interface for your local AI models, with SearXNG powering live web search.
 
+> **Cloud models only.** This setup is designed for use with cloud-based AI providers (OpenAI, Anthropic, etc.) via their APIs. Local models via Ollama are not included or configured by these scripts. You will need an API key from your chosen provider to use Open WebUI after setup.
+
+> **Already have Open WebUI installed?** Do not run these scripts — they will replace your existing Open WebUI container and may overwrite your data. If you already have Ollama running locally, it will connect automatically once Open WebUI is set up, but your existing container and settings will be lost.
+
 ---
 
 ## Before You Start
