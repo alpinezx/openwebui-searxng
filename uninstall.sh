@@ -5,6 +5,9 @@
 # Cleans up only what was installed by the setup scripts.
 # =============================================================
 
+# --- Authenticate sudo upfront to avoid mid-script prompts ---
+sudo -v
+
 # =============================================================
 # Helper functions
 # =============================================================
@@ -17,25 +20,25 @@ remove_searxng() {
     echo "  Stopping and removing searxng container..."
     docker stop searxng > /dev/null 2>&1
     docker rm searxng > /dev/null 2>&1
-    echo "  ✓ Container removed."
+    echo "  [x] Container removed."
   else
-    echo "  No searxng container found — skipping."
+    echo "  [ ] No searxng container found — skipping."
   fi
 
   if docker images --format '{{.Repository}}' | grep -q '^searxng/searxng$'; then
     echo "  Removing searxng image..."
     docker rmi searxng/searxng > /dev/null 2>&1
-    echo "  ✓ Image removed."
+    echo "  [x] Image removed."
   else
-    echo "  No searxng image found — skipping."
+    echo "  [ ] No searxng image found — skipping."
   fi
 
   if [ -d ~/searxng-config ]; then
     echo "  Removing ~/searxng-config..."
     sudo rm -rf ~/searxng-config
-    echo "  ✓ Config directory removed."
+    echo "  [x] Config directory removed."
   else
-    echo "  No searxng-config directory found — skipping."
+    echo "  [ ] No searxng-config directory found — skipping."
   fi
 
   echo ""
@@ -49,25 +52,25 @@ remove_openwebui() {
     echo "  Stopping and removing open-webui container..."
     docker stop open-webui > /dev/null 2>&1
     docker rm open-webui > /dev/null 2>&1
-    echo "  ✓ Container removed."
+    echo "  [x] Container removed."
   else
-    echo "  No open-webui container found — skipping."
+    echo "  [ ] No open-webui container found — skipping."
   fi
 
   if docker images --format '{{.Repository}}' | grep -q '^ghcr.io/open-webui/open-webui$'; then
     echo "  Removing open-webui image..."
     docker rmi ghcr.io/open-webui/open-webui:main > /dev/null 2>&1
-    echo "  ✓ Image removed."
+    echo "  [x] Image removed."
   else
-    echo "  No open-webui image found — skipping."
+    echo "  [ ] No open-webui image found — skipping."
   fi
 
   if [ -d ~/open-webui-data ]; then
     echo "  Removing ~/open-webui-data..."
     sudo rm -rf ~/open-webui-data
-    echo "  ✓ Data directory removed."
+    echo "  [x] Data directory removed."
   else
-    echo "  No open-webui-data directory found — skipping."
+    echo "  [ ] No open-webui-data directory found — skipping."
   fi
 
   echo ""
@@ -80,7 +83,7 @@ remove_docker() {
   if docker images --format '{{.Repository}}' | grep -q '^hello-world$'; then
     echo "  Removing hello-world image..."
     docker rmi hello-world > /dev/null 2>&1
-    echo "  ✓ hello-world image removed."
+    echo "  [x] hello-world image removed."
   fi
 
   echo "  Uninstalling Docker packages..."
@@ -89,7 +92,7 @@ remove_docker() {
   sudo rm -rf /var/lib/containerd
   sudo rm -f /etc/apt/sources.list.d/docker.list
   sudo rm -f /etc/apt/keyrings/docker.asc
-  echo "  ✓ Docker removed."
+  echo "  [x] Docker removed."
   echo ""
 }
 
@@ -97,7 +100,7 @@ ubuntu_cleanup() {
   echo "--- Running Ubuntu cleanup ---"
   sudo apt-get autoremove -y
   sudo apt-get clean
-  echo "  ✓ Cleanup complete."
+  echo "  [x] Cleanup complete."
   echo ""
 }
 
@@ -149,9 +152,9 @@ while true; do
   echo ""
   echo " System status:"
   echo ""
-  $has_openwebui && echo "   ✓ Open WebUI  — installed" || echo "   ✗ Open WebUI  — not found"
-  $has_searxng   && echo "   ✓ SearXNG     — installed" || echo "   ✗ SearXNG     — not found"
-  $has_docker    && echo "   ✓ Docker      — installed" || echo "   ✗ Docker      — not found"
+  $has_openwebui && echo "   [x] Open WebUI  — installed" || echo "   [ ] Open WebUI  — not found"
+  $has_searxng   && echo "   [x] SearXNG     — installed" || echo "   [ ] SearXNG     — not found"
+  $has_docker    && echo "   [x] Docker      — installed" || echo "   [ ] Docker      — not found"
   echo ""
 
   # --- Build dynamic menu ---
