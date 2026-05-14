@@ -63,6 +63,7 @@ printf "\r      ✓ Open WebUI is working. (%ds)          \n" "$elapsed"
 # --- Create SearXNG config ---
 echo "[3/5] Creating SearXNG config..."
 mkdir -p ~/searxng-config
+sudo chown -R $USER:$USER ~/searxng-config
 
 SECRET_KEY=$(openssl rand -hex 20)
 
