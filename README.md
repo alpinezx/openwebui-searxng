@@ -175,7 +175,7 @@ If you prefer to remove things by hand, use the commands below.
 docker stop searxng
 docker rm searxng
 docker rmi searxng/searxng
-sudo rm -rf ~/searxng-config
+rm -rf ~/searxng-config
 ```
 
 #### Open WebUI only
@@ -184,7 +184,7 @@ sudo rm -rf ~/searxng-config
 docker stop open-webui
 docker rm open-webui
 docker rmi ghcr.io/open-webui/open-webui:main
-sudo rm -rf ~/open-webui-data
+rm -rf ~/open-webui-data
 ```
 
 #### Docker
@@ -220,7 +220,7 @@ dir "C:\Users\%USERNAME%\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu*"
 Run `wsl --shutdown` fully — closing the terminal is not enough for group membership changes to take effect.
 
 **settings.yml permission denied:**
-The file may be owned by root. Run this first, then try again:
+This shouldn't happen with the current script, but if you're on an older version or created the config manually as root, fix ownership and try again:
 ```bash
 sudo chown -R $USER:$USER ~/searxng-config
 ```

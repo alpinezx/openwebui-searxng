@@ -35,6 +35,8 @@ docker run -d \
   -e OLLAMA_BASE_URL=http://127.0.0.1:11434 \
   --name open-webui \
   --restart always \
+  --log-opt max-size=10m \
+  --log-opt max-file=3 \
   ghcr.io/open-webui/open-webui:main
 
 echo "      Container started. Waiting for Open WebUI to be ready..."
@@ -60,14 +62,15 @@ printf "\r      ✓ Open WebUI is working. (%ds)          \n" "$elapsed"
 
 # --- Create SearXNG config ---
 echo "[3/5] Creating SearXNG config..."
-sudo mkdir -p ~/searxng-config
-sudo chown -R $USER:$USER ~/searxng-config
+mkdir -p ~/searxng-config
 
-sudo tee ~/searxng-config/settings.yml > /dev/null << 'EOF'
+SECRET_KEY=$(openssl rand -hex 20)
+
+tee ~/searxng-config/settings.yml > /dev/null << EOF
 use_default_settings: true
 
 server:
-  secret_key: "changethis123456789"
+  secret_key: "$SECRET_KEY"
   limiter: false
   image_proxy: true
   port: 8081
@@ -138,6 +141,8 @@ docker run -d \
   --name searxng \
   --network=host \
   --restart always \
+  --log-opt max-size=10m \
+  --log-opt max-file=3 \
   -e SEARXNG_PORT=8081 \
   -v ~/searxng-config:/etc/searxng \
   searxng/searxng

@@ -35,7 +35,7 @@ remove_searxng() {
 
   if [ -d ~/searxng-config ]; then
     echo "  Removing ~/searxng-config..."
-    sudo rm -rf ~/searxng-config
+    rm -rf ~/searxng-config
     echo "  [x] Config directory removed."
   else
     echo "  [ ] No searxng-config directory found — skipping."
@@ -67,7 +67,7 @@ remove_openwebui() {
 
   if [ -d ~/open-webui-data ]; then
     echo "  Removing ~/open-webui-data..."
-    sudo rm -rf ~/open-webui-data
+    rm -rf ~/open-webui-data
     echo "  [x] Data directory removed."
   else
     echo "  [ ] No open-webui-data directory found — skipping."
