@@ -2,9 +2,9 @@
 
 > **Windows only.** This setup runs Open WebUI and SearXNG inside WSL2 (Windows Subsystem for Linux). It is not intended for native Linux or macOS.
 
-> **Ubuntu only.** These scripts have only been tested on Ubuntu inside WSL2 and are built on Ubuntu/Debian-specific tooling (`apt-get`, Docker's Ubuntu repository). Other WSL distributions are not supported.
+> **Ubuntu only.** This script has only been tested on Ubuntu inside WSL2 and is built on Ubuntu/Debian-specific tooling (`apt-get`, Docker's Ubuntu repository). Other WSL distributions are not supported.
 
-Automated setup scripts for a private local search engine (SearXNG) connected to Open WebUI via Docker on Windows WSL2.
+Automated setup script for a private local search engine (SearXNG) connected to Open WebUI via Docker on Windows WSL2.
 
 SearXNG is a self-hosted, privacy-respecting meta search engine. It queries Google, Bing, DuckDuckGo and others simultaneously, strips out all ads and tracking, and returns clean results — served entirely from your own machine. Open WebUI provides a polished chat interface for your local AI models, with SearXNG powering live web search.
 
@@ -30,33 +30,15 @@ SearXNG is a self-hosted, privacy-respecting meta search engine. It queries Goog
 
 ## Installation
 
-### Step 1 — Run the first script
-
 Open Ubuntu and run:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alpinezx/openwebui-searxng/refs/heads/main/setup1.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alpinezx/openwebui-searxng/refs/heads/main/setup.sh -o setup.sh && sudo bash setup.sh
 ```
 
-This installs Docker and adds your user to the docker group.
+The script will install Docker, launch Open WebUI, walk you through a short SearXNG configuration menu, and verify everything is working — all in one go. No restart required.
 
-### Step 2 — Restart WSL
-
-When the script finishes it will tell you to restart. Do this:
-
-1. Type `exit` to close Ubuntu
-2. Open CMD and run: `wsl --shutdown`
-3. Reopen Ubuntu from the Start menu
-
-### Step 3 — Run the second script
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/alpinezx/openwebui-searxng/refs/heads/main/setup2.sh -o setup2.sh && bash setup2.sh
-```
-
-This walks you through a short configuration menu, then launches Open WebUI and SearXNG and verifies both are working.
-
-### Step 4 — Create your admin account
+### Create your admin account
 
 When the script completes, open **http://localhost:8080** in your browser and create your admin account. The first account created is permanent admin — choose carefully.
 
@@ -119,13 +101,36 @@ Tired of keeping a Ubuntu terminal window open on your taskbar? WSL Manager lets
 ## Quick Reference Commands
 
 ```bash
-docker ps                                               # Check running containers
-docker logs open-webui --tail 50                        # Check Open WebUI logs
-docker restart open-webui                               # Restart Open WebUI
-docker restart searxng                                  # Restart SearXNG
-docker stop open-webui searxng                          # Stop all containers
-curl "http://localhost:8081/search?q=test&format=json"  # Test SearXNG
+sudo docker ps                                              # Check running containers
+sudo docker logs open-webui --tail 50                       # Check Open WebUI logs
+sudo docker restart open-webui                              # Restart Open WebUI
+sudo docker restart searxng                                 # Restart SearXNG
+sudo docker stop open-webui searxng                         # Stop all containers
+sudo nano /root/searxng-config/settings.yml                 # Edit SearXNG configuration
+curl "http://localhost:8081/search?q=test&format=json"      # Test SearXNG
 ```
+
+---
+
+## Editing the SearXNG Configuration
+
+The config file lives at `/root/searxng-config/settings.yml`. Because the setup runs as root, you'll need `sudo` to edit it:
+
+```bash
+sudo nano /root/searxng-config/settings.yml
+```
+
+After saving, restart SearXNG for the changes to take effect:
+
+```bash
+sudo docker restart searxng
+```
+
+A few things worth knowing:
+
+- **`use_default_settings: true`** at the top of the file is important — it means you only need to include the settings you want to override. SearXNG fills in everything else from its own defaults. Don't remove this line.
+- **The port setting in `settings.yml` is ignored.** The port is controlled by the `-e SEARXNG_PORT=8081` flag in the docker run command. Don't bother changing it in the file.
+- The full list of configurable options is documented at [docs.searxng.org](https://docs.searxng.org/admin/settings/index.html).
 
 ---
 
@@ -133,10 +138,10 @@ curl "http://localhost:8081/search?q=test&format=json"  # Test SearXNG
 
 ### Using the uninstall script (recommended)
 
-The easiest way to remove any part of the setup. Run these two commands in Ubuntu:
+The easiest way to remove any part of the setup. Run this in Ubuntu:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alpinezx/openwebui-searxng/refs/heads/main/uninstall.sh -o uninstall.sh && bash uninstall.sh
+curl -fsSL https://raw.githubusercontent.com/alpinezx/openwebui-searxng/refs/heads/main/uninstall.sh -o uninstall.sh && sudo bash uninstall.sh
 ```
 
 The script detects what is currently installed and builds a menu based on what it finds:
@@ -161,7 +166,7 @@ The script detects what is currently installed and builds a menu based on what i
    5) Exit
 ```
 
-Options that no longer apply are removed automatically after each action — so if you remove SearXNG first and run it again, the menu updates to reflect what is still installed. Each option asks for confirmation before doing anything and runs an Ubuntu cleanup afterwards.
+Options that no longer apply are removed automatically after each action. Each option asks for confirmation before doing anything and runs an Ubuntu cleanup afterwards. The full removal option prints WSL unregister instructions at the end since that step must be done from Windows CMD.
 
 ---
 
@@ -172,19 +177,19 @@ If you prefer to remove things by hand, use the commands below.
 #### SearXNG only
 
 ```bash
-docker stop searxng
-docker rm searxng
-docker rmi searxng/searxng
-rm -rf ~/searxng-config
+sudo docker stop searxng
+sudo docker rm searxng
+sudo docker rmi searxng/searxng
+sudo rm -rf /root/searxng-config
 ```
 
 #### Open WebUI only
 
 ```bash
-docker stop open-webui
-docker rm open-webui
-docker rmi ghcr.io/open-webui/open-webui:main
-rm -rf ~/open-webui-data
+sudo docker stop open-webui
+sudo docker rm open-webui
+sudo docker rmi ghcr.io/open-webui/open-webui:main
+sudo rm -rf /root/open-webui-data
 ```
 
 #### Docker
@@ -215,40 +220,40 @@ dir "C:\Users\%USERNAME%\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu*"
 ## Troubleshooting
 
 **Running on a non-Ubuntu WSL distribution (e.g. Debian, openSUSE, Arch):**
-These scripts are built for Ubuntu and will fail on other distributions. They use `apt-get` for package management and pull Docker from Ubuntu's package repository. If you need to use a different distro, the scripts would need to be adapted manually. The simplest fix is to install Ubuntu alongside your existing distro — WSL supports multiple distributions at once.
+This script is built for Ubuntu and will fail on other distributions. It uses `apt-get` for package management and pulls Docker from Ubuntu's package repository. If you need to use a different distro, the script would need to be adapted manually. The simplest fix is to install Ubuntu alongside your existing distro — WSL supports multiple distributions at once.
 
 **VPN:** Disable before running `wsl --install`. VPNs block WSL downloads.
 
-**Docker "permission denied":**
-Run `wsl --shutdown` fully — closing the terminal is not enough for group membership changes to take effect.
+**Script not run as root:**
+The setup script must be run with `sudo bash setup.sh`. Running without `sudo` will exit immediately with an error message.
 
 **settings.yml permission denied:**
-This shouldn't happen with the current script, but if you're on an older version or created the config manually as root, fix ownership and try again:
+This shouldn't happen with the current script, but if you created the config manually, fix ownership and try again:
 ```bash
-sudo chown -R $USER:$USER ~/searxng-config
+chown -R root:root /root/searxng-config
 ```
 
 **Docker GPG signature errors on apt-get update:**
-GPG key didn't save correctly. Re-run `setup1.sh` one step at a time manually.
+GPG key didn't save correctly. Re-run `setup.sh` from the beginning.
 
 **Docker image download fails with TLS error (`bad record MAC`):**
-A network hiccup corrupted the download mid-way. This can happen on slower or less stable connections. If you see this error, clean up and re-run the script:
+A network hiccup corrupted the download mid-way. Clean up and re-run:
 ```bash
-docker rm -f open-webui
-docker rm -f searxng
-curl -fsSL https://raw.githubusercontent.com/alpinezx/openwebui-searxng/refs/heads/main/setup2.sh | bash
+sudo docker rm -f open-webui
+sudo docker rm -f searxng
+sudo bash setup.sh
 ```
-`setup2.sh` now retries the SearXNG image pull automatically, but if Open WebUI's image was the one that failed you will need to remove its container first as shown above.
+Both image pulls retry automatically on subsequent runs.
 
-**Re-running setup2.sh fails with container name conflict:**
-The script now detects and removes existing containers automatically before launching. If you are on an older version, remove them manually first:
+**Re-running setup.sh fails with container name conflict:**
+The script detects and removes existing containers automatically before launching. If you are on an older version, remove them manually first:
 ```bash
-docker rm -f open-webui
-docker rm -f searxng
+sudo docker rm -f open-webui
+sudo docker rm -f searxng
 ```
 
 **SearXNG defaulting to port 8080 (conflicts with Open WebUI):**
-Must be passed as `-e SEARXNG_PORT=8081` in the docker run command. The port setting in `settings.yml` is ignored by the container. Do NOT use sed to edit settings inside the container — corrupts YAML and causes a crash loop.
+Must be passed as `-e SEARXNG_PORT=8081` in the docker run command. The port setting in `settings.yml` is ignored by the container.
 
 **Open WebUI web search returning only snippets, not full content:**
 Ensure Bypass Web Loader is on in Admin Panel → Settings → Web Search.
